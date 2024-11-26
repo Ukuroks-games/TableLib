@@ -1,0 +1,3 @@
+[submodule "lua2dox"]
+	path = lua2dox
+	url = https://github.com/Ukuroks-games/lua2dox.git
