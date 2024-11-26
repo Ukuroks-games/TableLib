@@ -1,20 +1,18 @@
 --[[
-	# TableLib
-	
+	TableLib
+
 	Библиотека для создания таблиц
-	
-	
 ]]
 local TableLib = {}
 
 --[[
-	@brief Структура таблицы
+	Структура таблицы.
 ]]
 export type Table = {
 
 	--[[
 		Фрейм в который таблица вписывается
-	]]	
+	]]
 	Container: Frame,
 
 	--[[
@@ -31,7 +29,16 @@ export type Table = {
 }
 
 --[[
-	Создать таблицу
+	Создать таблицу.
+
+	Params:
+
+	* ContainerSize - Размер контейнера, в который вписывается 
+	* size - Размер таблицы
+
+	Returns:
+
+	Созданная таблица
 ]]
 function TableLib.CreateTable(ContainerSize: UDim2, size: {X: number, Y: number}): Table
 
@@ -49,7 +56,7 @@ function TableLib.CreateTable(ContainerSize: UDim2, size: {X: number, Y: number}
 			frame.Parent = ret.Container
 			frame.Name = "frame"..i.."x"..j
 
-			ret.Data[i][j] = frame 
+			ret.Data[i][j] = frame
 		end
 	end 
 
@@ -60,6 +67,14 @@ end
 
 --[[
 	Создать табличу из уже существующей из фрейма
+
+	Params:
+
+	* frame - фрейм из которого создаётся таблица
+
+	Returns:
+
+	Созданная таблица
 ]]
 function TableLib.FromFrame(frame: Frame): Table
 
@@ -69,12 +84,19 @@ function TableLib.FromFrame(frame: Frame): Table
 
 	end
 
-
 	return ret
 end
 
 --[[
 	Скопировать таблицу
+
+	Params:
+
+	* table - Таблица для копирования
+
+	Returns:
+
+	Скопированная таблица
 ]]
 function TableLib.Copy(table: Table): Table
 	return TableLib.FromFrame(table.Container:Clone())
@@ -82,6 +104,10 @@ end
 
 --[[
 	Нормализовать размер и координаты элементов
+
+	Params:
+
+	* table - таблица над которой делать эти манипуляции
 ]]
 function TableLib.Normalise(table: Table)
 
@@ -102,6 +128,10 @@ end
 
 --[[
 	Добавить столбец
+
+	Params:
+
+	* table - Таблица в которую добавляется новый столбец
 ]]
 function TableLib.AddNewColumn(table: Table)
 	
@@ -114,6 +144,10 @@ end
 
 --[[
 	Добавить строку
+
+	Params:
+
+	* table - Таблица в котору добавляется новая строка
 ]]
 function TableLib.AddNewRow(table: Table)
 	table.Data[#table.Data + 1] = {}
