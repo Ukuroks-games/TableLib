@@ -1,5 +1,5 @@
 --[[
-	TableLib
+	# TableLib
 
 	Библиотека для создания таблиц
 ]]
@@ -16,7 +16,7 @@ export type Table = {
 	Container: Frame,
 
 	--[[
-		Двемерный массив элементов таблицы
+		Двумерный массив элементов таблицы
 		обращаться как Data[Y][X]
 	]]
 	Data: {
@@ -24,19 +24,17 @@ export type Table = {
 			[number]: Frame
 		}
 	},
-
-
 }
 
 --[[
 	Создать таблицу.
 
-	Params:
+	#### Params:
 
-	* ContainerSize - Размер контейнера, в который вписывается 
-	* size - Размер таблицы
+	`ContainerSize` - Размер контейнера, в который вписывается 
+	`size` - Размер таблицы
 
-	Returns:
+	#### Returns:
 
 	Созданная таблица
 ]]
@@ -58,30 +56,32 @@ function TableLib.CreateTable(ContainerSize: UDim2, size: {X: number, Y: number}
 
 			ret.Data[i][j] = frame
 		end
-	end 
+	end
 
 	TableLib.Normalise(ret)
-	
+
 	return ret
 end
 
 --[[
 	Создать табличу из уже существующей из фрейма
 
-	Params:
+	#### Params:
 
-	* frame - фрейм из которого создаётся таблица
+	`frame` - фрейм из которого создаётся таблица
 
-	Returns:
+	#### Returns:
 
 	Созданная таблица
+
+	Функция не завершена
 ]]
 function TableLib.FromFrame(frame: Frame): Table
 
 	local ret: Table = {}
 
 	for key, value in pairs(frame:GetChildren()) do
-
+		
 	end
 
 	return ret
@@ -90,11 +90,11 @@ end
 --[[
 	Скопировать таблицу
 
-	Params:
+	#### Params:
 
-	* table - Таблица для копирования
+	`table` - Таблица для копирования
 
-	Returns:
+	#### Returns:
 
 	Скопированная таблица
 ]]
@@ -103,11 +103,22 @@ function TableLib.Copy(table: Table): Table
 end
 
 --[[
+	Удалить таблицу
+
+	#### Params:
+
+	`table` - Удаляемая таблица
+]]
+function TableLib.DeleteTable(table: Table)
+	table.Container:Destroy()
+end
+
+--[[
 	Нормализовать размер и координаты элементов
 
-	Params:
+	#### Params:
 
-	* table - таблица над которой делать эти манипуляции
+	`table` - таблица над которой делать эти манипуляции
 ]]
 function TableLib.Normalise(table: Table)
 
@@ -129,30 +140,28 @@ end
 --[[
 	Добавить столбец
 
-	Params:
+	#### Params:
 
-	* table - Таблица в которую добавляется новый столбец
+	`table` - Таблица в которую добавляется новый столбец
 ]]
 function TableLib.AddNewColumn(table: Table)
-	
+
 	for key, value in pairs(table.Data) do
 		table.Data[key][#table.Data[key] + 1] = Instance.new("Frame")
 	end
-	
+
 	TableLib.Normalise(table)
 end
 
 --[[
 	Добавить строку
 
-	Params:
+	#### Params:
 
-	* table - Таблица в котору добавляется новая строка
+	`table` - Таблица в котору добавляется новая строка
 ]]
 function TableLib.AddNewRow(table: Table)
 	table.Data[#table.Data + 1] = {}
 end
-
-
 
 return TableLib

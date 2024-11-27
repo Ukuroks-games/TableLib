@@ -1,5 +1,11 @@
 {
-    "cSpell.enabled": true,
+	"editor.insertSpaces": false,
 
-    "cSpell.language": "en,ru"
+	"cSpell.enabled": true,
+
+	"cSpell.language": "en,ru",
+	"cSpell.words": [
+		"doxygen",
+		"Roblox"
+	]
 }
