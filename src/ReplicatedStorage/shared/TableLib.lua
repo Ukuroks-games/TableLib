@@ -2,6 +2,8 @@
 	# TableLib
 
 	Библиотека для создания таблиц
+
+	Author: Egor00f
 ]]
 local TableLib = {}
 
