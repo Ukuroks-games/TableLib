@@ -8,7 +8,7 @@ Include this lib:
 ```
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local TableLib = require(ReplicatedStorage.shared.TableLib)
+local TableLib = require(ReplicatedStorage.Packages.TableLib)
 ```
 
 Table structure have members:
@@ -34,17 +34,19 @@ access to elements is:
 Table.Data[Row][Column]: Frame
 ```
 
+Do not change a size and position of frames from `Table.Data[Row][Column]`
+
+## Clone table
+
+Use function `Copy`
+
+```
+local copyTable = TableLib.Copy(Table)
+```
 
 ## Delete table
 
-Just delete table.Container
-
-```
-Table.Container:Destroy()
-Table = nil
-```
-
-or if you lazy you can use:
+use function `DeleteTable`
 
 ```
 TableLib.DeleteTable(Table)

@@ -3,3 +3,5 @@ Docs/html/
 *.rbxm
 TableLib
 wally.lock
+sourcemap.json
+Packages/

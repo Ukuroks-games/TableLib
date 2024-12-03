@@ -4,9 +4,18 @@
 	"cSpell.enabled": true,
 
 	"cSpell.language": "en,ru",
+	"editor.defaultFormatter": "JohnnyMorganz.stylua",
+
 	"cSpell.words": [
 		"doxygen",
 		"Roblox",
-		"ukuroksgames"
-	]
+		"ukuroksgames",
+		"aftman",
+		"rojo"
+	],
+	"cSpell.ignorePaths": [
+		".vscode",
+		"aftman.toml"
+	],
+	"luau-lsp.sourcemap.rojoProjectFile": "TableLib.project.json",
 }

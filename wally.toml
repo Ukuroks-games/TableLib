@@ -1,9 +1,11 @@
 [package]
 name = "egor00f/tablelib"
 description = "Library for create GUI tables"
-version = "0.1.0"
+version = "0.1.1"
 registry = "https://github.com/UpliftGames/wally-index"
 license="MIT"
 realm = "shared"
 repository = "https://github.com/Ukuroks-games/TableLib"
 homepage = "https://ukuroks-games.github.io/TableLib/"
+include = ["src/TableLib.lua"]
+exclude = ["TableLib.rbxl"]
