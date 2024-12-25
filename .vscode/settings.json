@@ -1,5 +1,6 @@
 {
 	"editor.insertSpaces": false,
+	"editor.defaultFormatter": "JohnnyMorganz.stylua",
 
 	"cSpell.enabled": true,
 
@@ -8,5 +9,8 @@
 		"doxygen",
 		"Roblox",
 		"ukuroksgames"
-	]
+	],
+
+	"luau-lsp.sourcemap.rojoProjectFile": "TableLib.project.json",
+	"luau-lsp.platform.type": "roblox"
 }
