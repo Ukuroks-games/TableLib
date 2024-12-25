@@ -1,10 +1,10 @@
 {
 	"editor.insertSpaces": false,
+	"editor.defaultFormatter": "JohnnyMorganz.stylua",
 
 	"cSpell.enabled": true,
 
 	"cSpell.language": "en,ru",
-	"editor.defaultFormatter": "JohnnyMorganz.stylua",
 
 	"cSpell.words": [
 		"doxygen",
@@ -17,4 +17,7 @@
 		".vscode",
 		"aftman.toml"
 	],
+
+	"luau-lsp.sourcemap.rojoProjectFile": "TableLib.project.json",
+	"luau-lsp.platform.type": "roblox"
 }
