@@ -73,7 +73,12 @@ end
 
 	Созданная таблица
 ]]
-function TableLib.new(container: Frame, size: { X: number, Y: number }, padding: number?): Table
+function TableLib.new(
+	container: Frame,
+	size: { X: number, Y: number },
+	padding: number?,
+	typeofTableContent: string?
+): Table
 	local self = setmetatable({
 		Container = container,
 		Data = {},
@@ -82,13 +87,13 @@ function TableLib.new(container: Frame, size: { X: number, Y: number }, padding:
 	}, TableClass)
 
 	self.padding.Name = "Padding"
+	self.padding.Value = padding or 0
 
 	for i = 1, size.Y do
 		self.Data[i] = {}
 		for j = 1, size.X do
-			local frame = Instance.new("Frame")
+			local frame = Instance.new(typeofTableContent or "Frame", self.Container)
 
-			frame.Parent = self.Container
 			frame.Name = GiveNameToFrame(i, j)
 
 			self.Data[i][j] = frame
@@ -107,18 +112,25 @@ function TableLib.new(container: Frame, size: { X: number, Y: number }, padding:
 	return self
 end
 
+--[[
+	# Парсер фрейма
+
+	Создаёт структура данных
+]]
 local function ParseTable(frame: Frame): TableData
 	local Data = {}
 
 	for _, value in pairs(frame:GetChildren()) do
 		local y, x
 
-		local pos = value.Name:find("x")
-
-		y = tonumber(value.Name:sub(6, pos):match("%d+"))
+		y = tonumber(value.Name:sub(6, value.Name:find("x")):match("%d+"))
 		x = tonumber(value.Name:sub(6):match("%d+"))
 
 		if y and x then
+			if table.find(Data, x) == nil then
+				Data[y] = {}
+			end
+
 			Data[y][x] = value
 		end
 	end
@@ -176,18 +188,21 @@ function TableClass.Copy(self: Table): Table
 
 	local paddingIstance = copy:WaitForChild("Padding", copy)
 
-	local ret: Table = setmetatable({
+	local self: Table = setmetatable({
 		Container = copy,
 		padding = paddingIstance,
-		Connections = nil,
+		Connections = {},
 		Data = ParseTable(self.Container),
 	}, TableClass)
 
-	paddingIstance.Changed:Connect(function()
-		TableLib.Normalise(ret)
-	end)
+	table.insert(
+		self.Connections,
+		paddingIstance.Changed:Connect(function()
+			TableLib.Normalise(self)
+		end)
+	)
 
-	return ret
+	return self
 end
 
 --[[
@@ -198,6 +213,12 @@ end
 	`table` - Удаляемая таблица
 ]]
 function TableClass.Destroy(self: Table)
+	for _, v in pairs(self.Connections) do
+		if v then
+			v:Disconnect()
+		end
+	end
+
 	self.Container:Destroy()
 	self.padding:Destroy()
 end
@@ -205,15 +226,31 @@ end
 --[[
 	# Нормализовать размер и координаты элементов
 
+	Распологает все елементы таблицы 
+
 	## Params:
 
 	`table` - таблица над которой делать эти манипуляции
 ]]
-function TableLib.Normalise(table: Table)
-	for i, v in pairs(table.Data) do
-		for j, k in pairs(v) do
-			k.Size = UDim2.fromScale(1 / #table.Data[i], 1 / #v)
-			k.Position = UDim2.fromScale((j - 1) * (1 / #v), (i - 1) * (1 / #table.Data))
+function TableLib.Normalise(Table: Table, row: number?, col: number?)
+	-- простите, но я не могу мыслить без начала отчета с нуля
+	-- я ваще плюсовик, не шарю за эту конченую нумерацию
+
+	--[[
+		
+	]]
+	local function set(k: Frame, v: number, i: number, j: number)
+		k.Size = UDim2.new(1 / v, -Table.padding.Value, 1 / v, -Table.padding.Value)
+		k.Position = UDim2.fromScale((j - 1) * (1 / v), (i - 1) * (1 / #Table.Data))
+	end
+
+	if row and col then
+		set(Table.Data[row][col], #Table.Data[row], row, col)
+	else
+		for i, v in pairs(Table.Data) do
+			for j, k in pairs(v) do
+				set(k, #v, i, j)
+			end
 		end
 	end
 end
@@ -227,8 +264,10 @@ end
 ]]
 function TableClass.AddNewColumn(self: Table)
 	for i, v in pairs(self.Data) do
-		v[#v + 1] = Instance.new("Frame", self.Container)
-		v[#v + 1].Name = GiveNameToFrame(i, #v + 1)
+		local a = Instance.new("Frame", self.Container)
+		a.Name = GiveNameToFrame(i, #v + 1)
+
+		v[#v + 1] = a
 	end
 
 	TableLib.Normalise(self)
@@ -244,10 +283,57 @@ end
 function TableClass.AddNewRow(self: Table)
 	self.Data[#self.Data + 1] = {}
 
-	for i, v in pairs(self.Data[#self.Data]) do
-		v = Instance.new("Frame", self.Container)
-		v.Name = GiveNameToFrame(#self.Data + 1, i)
+	for i = 1, #self.Data[#self.Data] do
+		local a = Instance.new("Frame", self.Container)
+		a.Name = GiveNameToFrame(#self.Data + 1, i)
+
+		self.Data[#self.Data + 1][i] = a
 	end
+
+	TableLib.Normalise(self)
 end
 
-return TableLib
+--[[
+	# Получить кол-во строк в таблице
+]]
+function TableClass.GetRowsNum(self: Table): number
+	return #self.Data
+end
+
+--[[
+	# Получить кол-во стобцов в таблице
+
+	## Params:
+
+	`row` - номер строки, по умолчанию 1
+]]
+function TableClass.GetColsNum(self: Table, row: number?): number
+	return #self.Data[row or 1]
+end
+
+--[[
+	# Заменить ячейку таблицы
+
+	## Params:
+
+	`row` - строка
+
+	`col` - столбец
+
+	`frame` - То на что заменяется
+]]
+function TableClass.ReplaceTableCell(self: Table, row: number, col: number, frame: Frame)
+	local cell = self.Data[row][col]
+
+	if cell then
+		cell:Destroy()
+	end
+
+	cell = frame
+	frame.Name = GiveNameToFrame(row, col)
+	frame.Parent = self.Container
+
+	TableLib.Normalise(self)
+end
+
+return setmetatable(TableLib, TableClass)
