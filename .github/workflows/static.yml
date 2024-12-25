@@ -35,8 +35,8 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Install Doxygen
-        run: sudo apt install doxygen -y
+      - name: Install depends
+        run: sudo apt install doxygen lua5.3 -y
 
       - name: Generate Doxygen
         run: doxygen

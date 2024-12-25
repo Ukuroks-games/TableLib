@@ -1,13 +1,20 @@
 {
-	"name": "TableLib",
-	"tree": {
-		"$className": "DataModel",
-		"ReplicatedStorage": {
-			"$className": "ReplicatedStorage",
-			"Packages": {
-				"$ignoreUnknownInstances": true,
-				"$path": "src"
-			}
-		}
-	}
+  "name": "TableLib",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "Packages": {
+        "$ignoreUnknownInstances": true,
+        "$path": "src"
+      }
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$path": "examples"
+      }
+    }
+  }
 }

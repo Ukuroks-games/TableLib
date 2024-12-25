@@ -17,5 +17,4 @@
 		".vscode",
 		"aftman.toml"
 	],
-	"luau-lsp.sourcemap.rojoProjectFile": "TableLib.project.json",
 }

@@ -7,53 +7,57 @@
 ]]
 local TableLib = {}
 
+local TableClass = {}
+TableClass.__index = TableClass
+
 --[[
 	# Структура массива ячеек таблицы
 ]]
 export type TableData = {
 	[number]: {
-		[number]: Frame
-	}
+		[number]: Frame,
+	},
 }
 
 --[[
 	# Структура таблицы.
 ]]
-export type Table = {
+export type Table = typeof(setmetatable(
+	{} :: {
 
-	--[[
-		# Фрейм в который таблица вписывается
-	]]
-	Container: Frame,
+		--[[
+			# Фрейм в который таблица вписывается
+		]]
+		Container: Frame,
 
-	--[[
-		# Двумерный массив ячеек таблицы
+		--[[
+			# Двумерный массив ячеек таблицы
 
-		обращаться как Data[Y][X]
-	]]
-	Data: TableData,
+			обращаться как Data[Y][X]
+		]]
+		Data: TableData,
 
-	--[[
-		# Отступы между ячейками таблицы
+		--[[
+			# Отступы между ячейками таблицы
 
-		имя инстанса Padding
+			имя инстанса Padding
 
-		При изменении значения, таблица автоматически потстраивает размер ячеек
-	]]
-	padding: NumberValue,
+			При изменении значения, таблица автоматически потстраивает размер ячеек
+		]]
+		padding: NumberValue,
 
-	--[[
-		# Список всех подключений
+		--[[
+			# Список всех подключений
 
-		Руками не трогать!
-	]]
-	Connections: {
-		RBXScriptConnection
-	}
-}
+			Руками не трогать!
+		]]
+		Connections: { RBXScriptConnection },
+	},
+	TableClass
+))
 
 local function GiveNameToFrame(i: number, j: number): string
-	return "frame "..i.." "..j
+	return "frame " .. i .. " " .. j
 end
 
 --[[
@@ -62,60 +66,58 @@ end
 	## Params:
 
 	`ContainerSize` - Размер контейнера, в который вписывается 
+
 	`size` - Размер таблицы
 
 	## Returns:
 
 	Созданная таблица
 ]]
-function TableLib.CreateTable(ContainerSize: UDim2, size: {X: number, Y: number}, padding: number?): Table
+function TableLib.new(container: Frame, size: { X: number, Y: number }, padding: number?): Table
+	local self = setmetatable({
+		Container = container,
+		Data = {},
+		padding = Instance.new("NumberValue", container),
+		Connections = {},
+	}, TableClass)
 
-	local ret: Table = {
-		Container = Instance.new("Frame"),
-		Data = nil,
-		padding = Instance.new("NumberValue"),
-		Connections = nil
-	}
-	ret.Container.Size = ContainerSize
-	ret.padding.Parent = ret.Container
-	ret.padding.Name = "Padding"
+	self.padding.Name = "Padding"
 
 	for i = 1, size.Y do
-
-		ret.Data = {}
-
+		self.Data[i] = {}
 		for j = 1, size.X do
 			local frame = Instance.new("Frame")
 
-			frame.Parent = ret.Container
+			frame.Parent = self.Container
 			frame.Name = GiveNameToFrame(i, j)
 
-			ret.Data[i][j] = frame
+			self.Data[i][j] = frame
 		end
 	end
 
-	TableLib.Normalise(ret)
+	TableLib.Normalise(self)
 
-	ret.padding.Changed:Connect(function(NewValue: number) 
-		TableLib.Normalise(ret)
-	end)
+	table.insert(
+		self.Connections,
+		self.padding.Changed:Connect(function()
+			TableLib.Normalise(self)
+		end)
+	)
 
-	return ret
+	return self
 end
 
 local function ParseTable(frame: Frame): TableData
-
 	local Data = {}
 
-	for key, value in pairs(frame:GetChildren()) do
-
+	for _, value in pairs(frame:GetChildren()) do
 		local y, x
 
 		local pos = value.Name:find("x")
 
 		y = tonumber(value.Name:sub(6, pos):match("%d+"))
 		x = tonumber(value.Name:sub(6):match("%d+"))
-		
+
 		if y and x then
 			Data[y][x] = value
 		end
@@ -141,22 +143,21 @@ end
 
 ]]
 function TableLib.FromFrame(frame: Frame): Table
-
-	local ret: Table = {
+	local self: Table = setmetatable({
 		Container = frame,
 		Data = ParseTable(frame),
 		padding = frame:WaitForChild("Padding"),
-		Connections = nil
-	}
+		Connections = {},
+	}, TableClass)
 
+	table.insert(
+		self.Connections,
+		self.padding.Changed:Connect(function()
+			TableLib.Normalise(self)
+		end)
+	)
 
-
-	ret.Connections = {ret.padding.Changed:Connect(function(NewValue: number) 
-		TableLib.Normalise(ret)
-	end)
-	}
-
-	return ret
+	return self
 end
 
 --[[
@@ -170,21 +171,19 @@ end
 
 	Скопированная таблица
 ]]
-function TableLib.Copy(table: Table): Table	
-	local copy = table.Container:Clone()
+function TableClass.Copy(self: Table): Table
+	local copy = self.Container:Clone()
 
-	local paddingIstance = copy:WaitForChild("Padding")
+	local paddingIstance = copy:WaitForChild("Padding", copy)
 
-	local ret: Table = {
+	local ret: Table = setmetatable({
 		Container = copy,
 		padding = paddingIstance,
 		Connections = nil,
-		Data = ParseTable(table.Container)
-	}
+		Data = ParseTable(self.Container),
+	}, TableClass)
 
-
-
-	paddingIstance.Changed:Connect(function(NewValue: string)
+	paddingIstance.Changed:Connect(function()
 		TableLib.Normalise(ret)
 	end)
 
@@ -198,9 +197,9 @@ end
 
 	`table` - Удаляемая таблица
 ]]
-function TableLib.DeleteTable(table: Table)
-	table.Container:Destroy()
-
+function TableClass.Destroy(self: Table)
+	self.Container:Destroy()
+	self.padding:Destroy()
 end
 
 --[[
@@ -211,20 +210,12 @@ end
 	`table` - таблица над которой делать эти манипуляции
 ]]
 function TableLib.Normalise(table: Table)
-
 	for i, v in pairs(table.Data) do
 		for j, k in pairs(v) do
-			k.Size = UDim2.fromScale (
-				1 / #table.Data[i],
-				1 / #v
-			)
-			k.Position = UDim2.fromScale (
-				(j - 1) * (1 / #v), 
-				(i - 1) * (1 / #table.Data)
-			)
+			k.Size = UDim2.fromScale(1 / #table.Data[i], 1 / #v)
+			k.Position = UDim2.fromScale((j - 1) * (1 / #v), (i - 1) * (1 / #table.Data))
 		end
 	end
-
 end
 
 --[[
@@ -234,14 +225,13 @@ end
 
 	`table` - Таблица в которую добавляется новый столбец
 ]]
-function TableLib.AddNewColumn(table: Table)
-
-	for key, value in pairs(table.Data) do
-		table.Data[key][#table.Data[key] + 1] = Instance.new("Frame")
-		table.Data[key][#table.Data[key] + 1].Name = GiveNameToFrame(key, #table.Data[key] + 1)
+function TableClass.AddNewColumn(self: Table)
+	for i, v in pairs(self.Data) do
+		v[#v + 1] = Instance.new("Frame", self.Container)
+		v[#v + 1].Name = GiveNameToFrame(i, #v + 1)
 	end
 
-	TableLib.Normalise(table)
+	TableLib.Normalise(self)
 end
 
 --[[
@@ -251,12 +241,12 @@ end
 
 	`table` - Таблица в котору добавляется новая строка
 ]]
-function TableLib.AddNewRow(table: Table)
-	table.Data[#table.Data + 1] = {}
+function TableClass.AddNewRow(self: Table)
+	self.Data[#self.Data + 1] = {}
 
-	for i, v in pairs(table.Data[#table.Data]) do
-		v = Instance.new("Frame")
-		v.Name = GiveNameToFrame(#table.Data + 1, i)
+	for i, v in pairs(self.Data[#self.Data]) do
+		v = Instance.new("Frame", self.Container)
+		v.Name = GiveNameToFrame(#self.Data + 1, i)
 	end
 end
 

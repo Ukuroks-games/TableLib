@@ -3,6 +3,7 @@
         "evaera.vscode-rojo",
         "johnnymorganz.luau-lsp",
         "usernamehw.errorlens",
-        "johnnymorganz.stylua"
+        "johnnymorganz.stylua",
+        "kampfkarren.selene-vscode"
     ]
 }
