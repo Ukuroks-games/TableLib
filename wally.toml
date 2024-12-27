@@ -3,7 +3,7 @@ name = "egor00f/tablelib"
 
 description = "Library for create GUI tables"
 
-version = "0.2.0"
+version = "0.2.1"
 
 registry = "https://github.com/UpliftGames/wally-index"
 

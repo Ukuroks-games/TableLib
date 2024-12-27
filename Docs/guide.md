@@ -14,6 +14,7 @@ local TableLib = require(ReplicatedStorage.Packages.TableLib)
 Table structure have members:
 + `Container` - table in this frame
 + `Data` - array of table elements
++ `padding` - 
 
 ## Create table
 
@@ -34,7 +35,7 @@ access to elements is:
 Table.Data[Row][Column]: Frame
 ```
 
-> Do not change a size and position of frames from `Table.Data[Row][Column]` 
+> Do not change a `Size`, `Position` and `Name`
 
 
 ## Clone table
